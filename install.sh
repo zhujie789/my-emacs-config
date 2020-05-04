@@ -37,6 +37,35 @@ install_emacs() {
     fi
 }
 
+install_global() {
+    GLOBAL_INSTALL_FILE_NAME=`ls global*.tar.gz`
+    GLOBAL_INSTALL_DIR_NAME=${GLOBAL_INSTALL_FILE_NAME//.tar.gz/}
+
+    if [ ! -d "${GLOBAL_INSTALL_DIR_NAME}" ]; then
+	tar xzvf $GLOBAL_INSTALL_FILE_NAME
+	if [ $? -ne 0 ]; then
+	    exit 2
+	fi
+    fi
+
+    cd $GLOBAL_INSTALL_DIR_NAME
+    if [ ! -f "Makefile" ]; then
+    	./configure $*
+    	if [ $? -ne 0 ]; then
+    	    exit 2
+    	fi
+    fi
+
+    if [ ! -f "global/global" ]; then
+    	make
+    fi
+
+    grep "PATH=.*global" ~/.bashrc > /dev/null
+    if [ $? -ne 0 ]; then
+    	echo "PATH=\${PATH}:${PWD}/global:${PWD}/gtags" >> ~/.bashrc
+    fi
+}
+
 ALL_PARAMS=$*
 EMACS_CONFIG_PATH=${PWD}
 cd software
@@ -50,5 +79,5 @@ fi
 if [ $1 == "emacs" ]; then
     install_emacs ${ALL_PARAMS//emacs/}
 elif [  $1 == "global" ]; then
-    echo "install global done."
+    install_global ${ALL_PARAMS//global/}
 fi
