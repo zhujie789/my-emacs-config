@@ -1,3 +1,4 @@
+
 ;;----------------------------------------- basic configurations -----------------------------------------------
 (if (display-graphic-p)
     (progn
@@ -43,6 +44,7 @@
 (global-set-key (kbd "{") 'skeleton-pair-insert-maybe)
 (global-set-key (kbd "\"") 'skeleton-pair-insert-maybe)
 
+(load-theme 'wombat t)
 
 ;;----------------------------------------- self-defined functions and their key-bindings -----------------------------------------------
 (global-set-key (kbd "M-u") (lambda () (interactive) (upcase-word -1)))
@@ -192,7 +194,11 @@
 
 (use-package ggtags
   :ensure t
+  :bind (:map ggtags-navigation-map
+	      ("M-<". nil)
+	      ("M->". nil))
   :config
+  (setq ggtags-global-abbreviate-filename nil)
   (add-hook 'asm-mode-hook 'ggtags-mode)
   (add-hook 'c-mode-hook 'ggtags-mode)
   (add-hook 'c++-mode-hook 'ggtags-mode)
