@@ -9,14 +9,14 @@ install_software() {
     local_usr_path=${PWD}/usr/local
 
     if [ ! -d "${local_usr_path}" ]; then
-        mkdir -p ${local_usr_path}
+	mkdir -p ${local_usr_path}
     fi
 
     if [ ! -d "${software_unpack_dir}" ]; then
-        tar xzvf $software_package
-        if [ $? -ne 0 ]; then
-            exit 2
-        fi
+	tar xzvf $software_package
+	if [ $? -ne 0 ]; then
+	    exit 2
+	fi
     fi
 
     cd $software_unpack_dir
