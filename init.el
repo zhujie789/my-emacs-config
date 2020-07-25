@@ -1,5 +1,7 @@
 
 ;;----------------------------------------- basic configurations -----------------------------------------------
+;; (server-start)
+
 (if (display-graphic-p)
     (progn
       (tool-bar-mode nil)                ;去掉工具栏
@@ -44,7 +46,10 @@
 (global-set-key (kbd "{") 'skeleton-pair-insert-maybe)
 (global-set-key (kbd "\"") 'skeleton-pair-insert-maybe)
 
-(load-theme 'wombat t)
+(add-to-list 'custom-theme-load-path user-emacs-directory)
+(load-theme 'mywombat t)
+(add-to-list 'auto-mode-alist '("\\.mak\\'" . makefile-gmake-mode))
+(add-to-list 'auto-mode-alist '("[Mm]akefile\\.[a-zA-Z]+\\'" . makefile-gmake-mode))
 
 ;;----------------------------------------- self-defined functions and their key-bindings -----------------------------------------------
 (global-set-key (kbd "M-u") (lambda () (interactive) (upcase-word -1)))
@@ -124,6 +129,12 @@
 		    (comment-dwim arg))))
 
 
+(global-set-key (kbd "C-x t")
+		(lambda (buffer-name)
+		  "open a new ansi-term with buffer name."
+		  (interactive "sPlease input buffer name: ")
+		  (ansi-term "/bin/bash" buffer-name)))
+
 ;;----------------------------------------- built-in and third-party's packages -----------------------------------------------
 (require 'package)
 (setq package-enable-at-startup nil)
@@ -133,25 +144,28 @@
 (add-to-list 'load-path (concat user-emacs-directory "/not-in-elpa/use-package"))
 (require 'use-package)
 
+(use-package ido
+  :config
+  (ido-mode t))
+
 (use-package hydra
   :ensure t)
 
-(use-package ivy
-  :ensure t
-  :bind (("M-x" . counsel-M-x)
-	 ("C-x C-f" . counsel-find-file)
-	 ("M-y" . counsel-yank-pop)
-	 ("C-s" . swiper)
-	 :map ivy-minibuffer-map
-	 ("M-y" . ivy-next-line))
-  :diminish (ivy-mode . "")
-  :config
-  (ivy-mode 1)
-  (setq ivy-use-virutal-buffers t)
-  (setq enable-recursive-minibuffers t)
-  (setq ivy-height 10)
-  (setq ivy-initial-inputs-alist nil)
-  (setq ivy-count-format "%d/%d"))
+;; (use-package ivy
+;;   :ensure t
+;;   :bind (("M-x" . counsel-M-x)
+;;      ("C-x C-f" . counsel-find-file)
+;;      ("M-y" . counsel-yank-pop)
+;;      :map ivy-minibuffer-map
+;;      ("M-y" . ivy-next-line))
+;;   :diminish (ivy-mode . "")
+;;   :config
+;;   (ivy-mode 1)
+;;   (setq ivy-use-virutal-buffers t)
+;;   (setq enable-recursive-minibuffers t)
+;;   (setq ivy-height 10)
+;;   (setq ivy-initial-inputs-alist nil)
+;;   (setq ivy-count-format "%d/%d"))
 
 (use-package avy
   :ensure t
@@ -190,7 +204,7 @@
   (global-company-mode)
   (setq company-idle-delay 0)
   (setq company-minimum-prefix-length 3)
-  (setq company-backends '((company-dabbrev company-dabbrev-code company-capf company-files company-keywords company-gtags))))
+  (setq company-backends '((company-dabbrev company-keywords company-gtags company-files))))
 
 (use-package ggtags
   :ensure t
@@ -203,3 +217,41 @@
   (add-hook 'c-mode-hook 'ggtags-mode)
   (add-hook 'c++-mode-hook 'ggtags-mode)
   (add-hook 'java-mode-hook 'ggtags-mode))
+
+(use-package dash
+  :load-path "not-in-elpa/dash")
+
+(use-package with-editor
+  :load-path "not-in-elpa/with-editor")
+
+(use-package transient
+  :load-path "not-in-elpa/transient")
+
+(use-package git-commit
+  :load-path "not-in-elpa/git-commit")
+
+(use-package magit
+  :load-path "not-in-elpa/magit"
+  :config
+  (defun magit-push-to-gerrit ()
+    (interactive)
+    (magit-git-command-topdir "git push origin HEAD:refs/for/master"))
+  (transient-append-suffix 'magit-push "p"
+    '("m" "Push to gerrit" magit-push-to-gerrit)))
+
+(use-package google-c-style
+  :load-path "not-in-elpa/google-c-style"
+  :config
+  (add-hook 'c-mode-common-hook 'google-set-c-style)
+  (add-hook 'c-mode-common-hook 'google-make-newline-indent))
+
+(use-package desktop
+  :config
+  (setq desktop-path '("~/.emacs.d/"))
+  (setq desktop-dirname "~/.emacs.d/")
+  (setq desktop-base-file-name "emacs-desktop")
+  (setq desktop-auto-save-timeout 30)
+  (desktop-save-mode 1))
+
+(use-package dts-mode
+  :load-path "not-in-elpa/dts-mode-master")
